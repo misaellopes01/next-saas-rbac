@@ -20,7 +20,7 @@ model User {
   accounts           Account[]
   invites            Invite[]
   member_on          Member[]
-  owns_organizations Oraganization[]
+  owns_organizations Organization[]
   owns_projects      Project[]
 
   @@map("users")
@@ -73,10 +73,10 @@ model Invite {
   author User?   @relation(fields: [userId], references: [id])
   userId String? @map("user_id")
 
-  organization    Oraganization @relation(fields: [oraganizationId], references: [id])
-  oraganizationId String        @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
 
-  @@index([email, oraganizationId])
+  @@index([email, organizationId])
   @@index([email])
   @@map("invites")
 }
@@ -85,17 +85,17 @@ model Member {
   id   String @id @default(uuid())
   role Role   @default(MEMBER)
 
-  organization    Oraganization @relation(fields: [oraganizationId], references: [id])
-  oraganizationId String        @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @map("user_id")
 
-  @@unique([oraganizationId, userId])
+  @@unique([organizationId, userId])
   @@map("members")
 }
 
-model Oraganization {
+model Organization {
   id                        String   @id @default(uuid())
   name                      String
   slug                      String   @unique
@@ -105,8 +105,8 @@ model Oraganization {
   createdAt                 DateTime @default(now()) @map("created_at")
   updatedAt                 DateTime @updatedAt @map("updated_at")
 
-  owner  User   @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @map("owner_id")
 
   invites  Invite[]
   members  Member[]
@@ -124,11 +124,11 @@ model Project {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  organization    Oraganization @relation(fields: [oraganizationId], references: [id])
-  oraganizationId String        @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String       @map("organization_id")
 
-  owner  User   @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId String @map("owner_id")
 
   @@map("projects")
 }
