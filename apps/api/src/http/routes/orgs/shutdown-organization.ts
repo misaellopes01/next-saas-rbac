@@ -45,7 +45,7 @@ export async function shutdownOrganization(app: FastifyInstance) {
             'You are not allowed to shutdown this organization!',
           )
         }
-
+        // Maybe should verify user owner
         await prisma.organization.delete({
           where: {
             id: organization.id,
