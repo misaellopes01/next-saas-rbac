@@ -22,7 +22,7 @@ export async function transferOrganization(app: FastifyInstance) {
           summary: 'Transfer organization ownership',
           security: [{ bearerAuth: [] }],
           body: z.object({
-            transferToUsrId: z.string().uuid(),
+            transferToUserId: z.string().uuid(),
           }),
           params: z.object({
             slug: z.string(),
@@ -50,13 +50,13 @@ export async function transferOrganization(app: FastifyInstance) {
           )
         }
 
-        const { transferToUsrId } = request.body
+        const { transferToUserId } = request.body
 
         const transferToMembership = await prisma.member.findUnique({
           where: {
             organizationId_userId: {
               organizationId: organization.id,
-              userId: transferToUsrId,
+              userId: transferToUserId,
             },
           },
         })
@@ -67,28 +67,27 @@ export async function transferOrganization(app: FastifyInstance) {
           )
         }
 
-        await prisma.$transaction(async (tx) => {
-          await tx.member.update({
+        await prisma.$transaction([
+          prisma.member.update({
             where: {
               organizationId_userId: {
                 organizationId: organization.id,
-                userId: transferToUsrId,
+                userId: transferToUserId,
               },
             },
             data: {
               role: 'ADMIN',
             },
-          })
-
-          await tx.organization.update({
+          }),
+          prisma.organization.update({
             where: {
               id: organization.id,
             },
             data: {
-              ownerId: transferToUsrId,
+              ownerId: transferToUserId,
             },
-          })
-        })
+          }),
+        ])
 
         return reply.status(204).send()
       },
